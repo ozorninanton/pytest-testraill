@@ -15,7 +15,7 @@ setup(
     author_email='ozorninanton@mail.ru',
     url='https://github.com/ozorninanton/pytest-testraill',
     packages=[
-        'pytest_testraill',
+        'pytest_testrail',
     ],
     package_dir={'pytest_testraill': 'pytest_testraill'},
     install_requires=[

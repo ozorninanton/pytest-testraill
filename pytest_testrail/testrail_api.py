@@ -87,14 +87,15 @@ class APIClient:
         else:
             return r.json()
 
-    def send_post(self, uri, data, **kwargs):
-        '''
+    def send_post(self, uri, files=None, data=None, **kwargs):
+        """
         Send POST
 
         Issues a POST request (write) against the API and returns the result (as Python dict).
 
         :param uri: The API method to call including parameters (e.g. get_case/1)
         :type uri: str
+        :param files: File for attachment
         :param data: The data to submit as part of the request (strings must be UTF-8 encoded).
         :type data: dict
         :param headers: (optional) Dictionary of HTTP Headers to send with the request.
@@ -105,24 +106,34 @@ class APIClient:
         :param timeout: (optional) How many seconds to wait for the server to send data before giving up, as a float,
             or a :ref:`(connect timeout, read timeout) <timeouts>` tuple.
         :type timeout: float or tuple
-        '''
+        """
         cert_check = kwargs.get('cert_check', self.cert_check)
         headers = kwargs.get('headers', self.headers)
         url = self._url + uri
-        r = requests.post(
-            url,
-            auth=(self.user, self.password),
-            headers=headers,
-            json=data,
-            verify=cert_check,
-            timeout=self.timeout
-        )
+        if uri[:14] == 'add_attachment':
+            r = requests.request(
+                'POST',
+                url,
+                auth=(self.user, self.password),
+                files=files,
+                verify=cert_check,
+                timeout=self.timeout
+            )
+        else:
+            r = requests.post(
+                url,
+                auth=(self.user, self.password),
+                headers=headers,
+                json=data,
+                verify=cert_check,
+                timeout=self.timeout
+            )
 
         if r.status_code == 429:  # Too many requests
             pause = int(r.headers.get('Retry-After', 60))
             print("Too many requests: pause for {}s".format(pause))
             time.sleep(pause)
-            return self.send_post(uri, data, **kwargs)
+            return self.send_post(uri, files, data, **kwargs)
         else:
             return r.json()
 

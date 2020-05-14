@@ -12,7 +12,7 @@ Installation
 
 ::
 
-   pip install pytest-testrail
+   pip install pytest-testraill
 
 Configuration
 -------------
